@@ -1,12 +1,32 @@
 
 var _ = require('underscore');
+var User = require('./models').User;
+var Tweet = require('./models').Tweet;
+
 
 var data = [];
-var id = 1;
+// var id = 1;
+
+var initialize = function(name, text, id) {
+  data.push({name: name, text: text, id: id});
+};
 
 var add = function (name, text) {
-  data.push({id: id, name: name, text: text });
-  id += 1
+  // // var obj = {};
+  // // obj.name = name;
+  // // obj.text = text;
+  // // obj.id = id;
+  console.log(name);
+  console.log(text);
+  Tweet.create({tweet: text}).then(function(){
+    // console.log("POSTED.")
+    data.push({name: name, text: text, id: id});
+
+    // Tweet.findAll().complete(function(err, tweets){
+    //   console.log(tweets);
+    // });
+
+  });
 };
 
 var list = function () {
@@ -18,30 +38,40 @@ var find = function (properties) {
   return _.where(data, properties);
 };
 
-module.exports = { add: add, list: list, find: find };
+module.exports = { initialize: initialize, add: add, list: list, find: find };
 
 
+// SQL Example code
+/*User.find(7).complete(function(err, user) {
+    user.getTweets().complete(function(err, tweets) {
+        console.log(tweets);
+  })
+});*/
 
-var randArrayEl = function(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
-};
-
-
-var getFakeName = function() {
-  var fakeFirsts = ['Nimit', 'Dave', 'Will', 'Charlotte', 'Jacob','Ethan','Sophia','Emma','Madison'];
-  var fakeLasts = ["Alley", 'Stacky', 'Fullstackerson', 'Nerd', 'Ashby', 'Gatsby', 'Hazelnut', 'Cookie', 'Tilde', 'Dash'];
-  return randArrayEl(fakeFirsts) + " " + randArrayEl(fakeLasts);
-};
-
-
-var getFakeTweet = function() {
-  var awesome_adj = ['awesome','breathtaking','amazing','sexy','sweet','cool','wonderful','mindblowing'];
-  return "Fullstack Academy is " + randArrayEl(awesome_adj) + "! The instructors are just so " + randArrayEl(awesome_adj) + ". #fullstacklove #codedreams";
-};
+// Test JOIN
+/*Tweet.findAll({ include: [ User ] }).complete(function(err, tweets) {
+        console.log(JSON.stringify(tweets[0].tweet));
+        console.log(JSON.stringify(tweets[0].User.name));
+});*/
 
 
-for(var i=0; i<10; i++) {
-  module.exports.add( getFakeName(), getFakeTweet() );
-}
+Tweet.findAll({ include: [ User ] }).complete(function(err, tweets) {
+        // console.log(tweets);
+        console.log("# of tweets:",tweets.length);
+        
+        for(var i=0; i<tweets.length; i++) {
+          console.log("id: ",tweets[i].dataValues.id);
+          // console.log("user: ",tweets[i].dataValues.UserId);
+          console.log("user: ",tweets[i].dataValues.User.name);
+          console.log(tweets[i].dataValues.tweet);
+
+          var tweeter = tweets[i].dataValues.User.name
+          var tweetie = tweets[i].dataValues.tweet
+          var tweetdex = tweets[i].dataValues.id
+
+          module.exports.initialize(tweeter, tweetie, tweetdex);
+
+        }
+});
 
 // console.log(data);
