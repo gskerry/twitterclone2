@@ -12,22 +12,27 @@ var initialize = function(name, text, id) {
 };
 
 var add = function (name, text) {
-  // // var obj = {};
-  // // obj.name = name;
-  // // obj.text = text;
-  // // obj.id = id;
-  console.log(name);
-  console.log(text);
-  Tweet.create({tweet: text}).then(function(){
-    // console.log("POSTED.")
-    data.push({name: name, text: text, id: id});
+  var num;
+  var id;
+  User.findOrCreate({where:{name: name}}).complete(function(err, user) {
+    // var thing = user[0].dataValues.id
+    // console.log("thing: ",thing);
+    // console.log("type: ", typeof thing);
+    id = user[0].dataValues.id;
+    num = parseInt(id);
 
-    // Tweet.findAll().complete(function(err, tweets){
-    //   console.log(tweets);
-    // });
+    Tweet.create({UserId: num, tweet: text}).then(function(){
+      // console.log("POSTED.")
+      data.push({name: name, text: text, id: id});
+      // Tweet.findAll().complete(function(err, tweets){
+      //   console.log(tweets);
+      // });
 
-  });
-};
+    }); // end create
+
+  }); // end find callback
+  
+}; // close add method
 
 var list = function () {
   return _.clone(data);
@@ -50,8 +55,9 @@ module.exports = { initialize: initialize, add: add, list: list, find: find };
 
 // Test JOIN
 /*Tweet.findAll({ include: [ User ] }).complete(function(err, tweets) {
-        console.log(JSON.stringify(tweets[0].tweet));
-        console.log(JSON.stringify(tweets[0].User.name));
+        console.log(JSON.stringify(tweets[0]));
+        // console.log(JSON.stringify(tweets[0].tweet));
+        // console.log(JSON.stringify(tweets[0].User.name));
 });*/
 
 
