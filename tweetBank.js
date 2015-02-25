@@ -38,10 +38,32 @@ var list = function () {
   return _.clone(data);
 };
 
-var find = function (properties) {
-	console.log("TBprop:",properties)
-  return _.where(data, properties);
+var find = function (properties, callback) {
+	// var display = _.where(data, properties);
+ //  console.log(display);
+ //  return _.where(data, properties);
+
+  var tweets_ray = [];
+
+  User.find({where: properties}).complete(function(err, user) {
+      user.getTweets().complete(function(err, tweets) {
+          console.log(tweets);
+          for(var i=0; i<tweets.length; i++) {
+            tempObj = {};
+            tempObj.name = properties.name;
+            tempObj.text = tweets[i].dataValues.tweet;
+            tempObj.id = tweets[i].dataValues.id;
+            tweets_ray.push(tempObj);
+          }
+    })
+  });
+
+  // function slowtweet(){
+  //   return tweets_ray;
+  // }
+
 };
+
 
 module.exports = { initialize: initialize, add: add, list: list, find: find };
 
